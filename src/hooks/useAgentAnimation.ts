@@ -34,7 +34,7 @@ export function useAgentAnimation(options: UseAgentAnimationOptions = {}) {
   const [frameIndex, setFrameIndex] = useState(0);
 
   // 动画定时器
-  const animationTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const animationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // 更新主 Agent 状态
   const updateMainAgentStatus = useCallback((status: AgentStatus) => {
@@ -163,8 +163,6 @@ export function useAgentAnimation(options: UseAgentAnimationOptions = {}) {
       const startPos = mainAgent.position;
       const dx = targetPosition.x - startPos.x;
       const dy = targetPosition.y - startPos.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-
       // 移动动画
       let progress = 0;
       const interval = setInterval(() => {

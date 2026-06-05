@@ -46,7 +46,7 @@ function useDemoMode(enabled: boolean, api: HermesAgentAPI) {
     ];
 
     let timer: ReturnType<typeof setTimeout>;
-    let splitTicker: ReturnType<typeof setInterval>;
+    let splitTicker: ReturnType<typeof setInterval> | undefined;
 
     const run = () => {
       const step = steps[stepRef.current % steps.length];
@@ -110,7 +110,16 @@ const App: React.FC = () => {
   const demoEnabled = new URLSearchParams(window.location.search).has('demo');
 
   const [state, setState] = useState<DashboardState>(DEFAULT_STATE);
-  const splitTimerRef = useRef<ReturnType<typeof setInterval>>();
+  const [lastUpdate, setLastUpdate] = useState<number>(Date.now());
+  const splitTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // SSE 事件监听 — 更新 lastUpdate 以反映实时连接
+  useEffect(() => {
+    const es = new EventSource('/events');
+    es.onmessage = () => setLastUpdate(Date.now());
+    es.onerror = () => setLastUpdate(0);
+    return () => es.close();
+  }, []);
 
   // 任务包动画
   const animatePacket = useCallback((packetId: string, fromX: number, fromY: number, toX: number, toY: number) => {
@@ -158,6 +167,7 @@ const App: React.FC = () => {
   // 构建 API
   const buildAPI = useCallback((): HermesAgentAPI => ({
     setState(partial) {
+      setLastUpdate(Date.now());
       setState((prev) => {
         const next = { ...prev, ...partial };
         // 深合并 mainAgent
@@ -252,9 +262,10 @@ const App: React.FC = () => {
         radial-gradient(ellipse at 70% 60%, rgba(139,92,246,0.04) 0%, transparent 55%),
         radial-gradient(ellipse at 50% 50%, rgba(15,15,35,1) 0%, #0a0a18 100%)
       `,
-      display: 'flex', justifyContent: 'center', alignItems: 'center',
+      display: 'flex', justifyContent: 'center', alignItems: 'flex-start',
       padding: '30px', gap: '28px',
       fontFamily: '"Segoe UI", system-ui, -apple-system, sans-serif',
+      flexWrap: 'wrap',
     }}>
       <PixelCanvas
         mainAgent={state.mainAgent}
@@ -267,6 +278,7 @@ const App: React.FC = () => {
         mainAgent={state.mainAgent}
         subAgents={state.subAgents}
         taskQueue={state.taskQueue}
+        lastUpdate={lastUpdate}
       />
     </div>
   );

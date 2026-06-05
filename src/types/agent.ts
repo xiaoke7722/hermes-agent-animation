@@ -73,3 +73,5 @@ declare global {
     __hermesAgent?: HermesAgentAPI;
   }
 }
+
+export type AnimationType = 'idle' | 'working' | 'thinking' | 'walking' | 'distributing' | 'collaborating';

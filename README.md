@@ -64,18 +64,52 @@ interface DashboardState {
 }
 ```
 
-## Linux 部署
 
-`dist/` 是纯静态文件，任意 HTTP 服务器托管即可：
+## Linux 部署（生产环境）
+
+### 前置要求
+- Node.js 23+
+- npm
+
+### 1. 构建
+```bash
+npm install
+npm run build      # 输出到 dist/
+```
+
+### 2. 启动仪表盘（一体化服务）
+```bash
+# 方式一：直接运行
+PORT=8888 node bridge/server.js
+
+# 方式二：systemd 服务（推荐）
+sudo cp deploy/hermes-dashboard.service /etc/systemd/system/
+sudo systemctl enable hermes-dashboard.service
+sudo systemctl start hermes-dashboard.service
+```
+
+### 3. 实时监控（自动同步 Hermes Agent 状态）
+仪表盘内置了 Hermes Agent 实时状态监控器，通过读取 `agent.log` 自动捕获工具调用：
 
 ```bash
-npm run build
-
-# nginx
-cp -r dist/* /var/www/hermes-dashboard/
-
-# 或直接内嵌到 Hermes Agent 的静态服务中
+# systemd 服务（推荐）
+sudo systemctl enable hermes-dashboard-monitor.service
+sudo systemctl start hermes-dashboard-monitor.service
 ```
+
+监控器功能：
+- 🟡 主Agent状态自动更新（working / thinking / idle）
+- 📦 每次工具调用自动分发子Agent（terminal、execute_code 等真实工具名）
+- 👥 右侧面板子Agent列表实时更新
+- 📝 任务队列记录工具调用历史
+- ⏱ 会话时长计时器
+
+### 4. 访问
+```
+http://<服务器IP>:8888
+http://<服务器IP>:8888/?demo    # 演示模式
+```
+
 
 ## 项目结构
 

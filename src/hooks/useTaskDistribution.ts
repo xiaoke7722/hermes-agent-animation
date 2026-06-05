@@ -19,7 +19,7 @@ export function useTaskDistribution(options: UseTaskDistributionOptions = {}) {
   const [connections, setConnections] = useState<Connection[]>([]);
 
   // 动画定时器
-  const animationTimersRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
+  const animationTimersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
   // 添加任务到队列
   const addTask = useCallback((name: string) => {

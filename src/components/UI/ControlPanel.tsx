@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import type { Task } from '../../types/agent';
 
 interface ControlPanelProps {
   isPlaying: boolean;

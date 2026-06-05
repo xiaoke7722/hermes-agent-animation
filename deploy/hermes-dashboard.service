@@ -1,0 +1,15 @@
+[Unit]
+Description=Hermes Agent Dashboard (static + SSE + API unified)
+After=network.target
+
+[Service]
+Type=simple
+User=admin
+Environment=PORT=8888
+Environment=PATH=/home/admin/.nvm/versions/node/v23.11.1/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=/home/admin/.nvm/versions/node/v23.11.1/bin/node /home/admin/hermes-bridge/server.js
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
